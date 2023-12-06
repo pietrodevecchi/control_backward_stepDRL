@@ -1,4 +1,4 @@
-File Explanations 
+File Explanations :
 
 jet_bcs.py: 
 
@@ -45,24 +45,31 @@ none             		|  No preconditioner
 petsc_amg        		|  PETSc algebraic multigrid
 sor              		|  Successive over-relaxation
 
-our_generate_msh.py :
+generate_msh.py :
 
 The file contains the function generate_mesh, which is called in 'our_EnvBackward_step.py' when the remesh attribute is turned on.
 In the body of the function, through the flag variable "change_parameters", it is possible to update or change some of the geometry parameters without modifying the .geo file . For us it was useful, in order to understand the impact of the jet, to have the possibility of updating the variable "control_width" which of course need the modification also for the attribute "length_before_control".
 The function then call through the attribute subprocess.call() gmsh to generate the mesh.
 
 
-our_msh_convert.py : 
+msh_convert.py : 
 
 The file is basically the same as the one realized by Rabault in the original code provided for the Cylinder problem : the key is to obtain at the end of the process a .h5 file starting from the .msh file. This is obtained by meaning of calling dolfin-convert (we tried to modify it by using meshio-convert, but it caused problems) for a first conversion from .msh to .xml and it is completed by using the function HDF5File().
 
-our_probes.py :
+probes.py :
 
 In this script there is the initialization of the probes for booth the velocity and the pressure calculus in the positions chosen in env.py. The two classes VelocityProbeValues and PressureProbeValues are child_classes of Probe_Evaluator from which they inherits the "sample" method through which the values for each timestep are calculated. Probe_Evaluator builds objects which, once localized the cells containing the probes, evaluate the basis function for the cell dofs, which are then saved and updated with the velocity or pressure value once the sample method is called. 
 Moreover in this script it is also developed the TotalRecirculationArea class, whose objects provide the calculus of the global area of cells having (in their dofs) at least one values of the computed horizontal velocity below a given threshold (for us 0, so horizontal velocity opposite w.r.t the flow direction). This function is the one used as reward function for the learning. 
 
 
-our_env.py :
+env.py :
 
 In this script it's initialized the example environment called in the script lauch_parallel_training.py through the function resume_env.
 The fundamental parameters for the simulations are all initialized here: both the geometrical ones but also the ones necessary for the training as the maximum and the minimum value for forcing jet and for the frequency, the timestep for each solver object iteration and the choice of reward function.
+
+Freefem_CFD_code.edp :
+
+This code is not part of the library we developed but it is the first approach we had in trying to compute a CFD simulation of the backward_step control problem. It is highly commented as it could serve as a first reading to understand the problem and the aim of the code we developed afterwards.
+In particular the classes flow_solver.py and jet.bcs are built following the principles first used for this simulation. 
+We took advantage of the FreeFem solver as it interface is simple and it is a tool we already knew from all of us as it was used in our previous CFD courses. 
+The .edp format is the one recognized by FreeFem, and so the file it's ready to be directly run.
