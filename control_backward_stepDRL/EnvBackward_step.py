@@ -586,7 +586,7 @@ class EnvBackward_step(Environment):
                 if self.verbose > 0:
                     print(self.solver_step)
                     print(self.Qs)
-                    print(self.probes_values)
+                   # print(self.probes_values)
                     print(self.recirc_area)
                     pass
 
@@ -736,8 +736,8 @@ class EnvBackward_step(Environment):
        
         next_state = np.transpose(np.array(self.probes_values))
 
-        if self.verbose > 2:
-            print(next_state)
+        #if self.verbose > 2:
+            #print(next_state)
 
         terminal = False
 
@@ -759,7 +759,7 @@ class EnvBackward_step(Environment):
     def compute_reward(self):
         
         if(self.reward_function == 'recirculation_area'):
-            return - self.area_probe.sample(self.u_, self.p_)
+            return + self.area_probe.sample(self.u_, self.p_)       # CAPIRE
         elif(self.reward_function == 'max_recirculation_area'):
             return self.area_probe.sample(self.u_, self.p_)
         else:
