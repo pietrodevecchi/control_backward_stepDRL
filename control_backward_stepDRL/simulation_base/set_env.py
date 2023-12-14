@@ -16,7 +16,7 @@ import os
 cwd = os.getcwd()
 
 #number of actuations for each episode
-actuations_number = 80
+actuations_number = 50
 
 def resume_env(plot=False,
                step=50,
@@ -47,8 +47,8 @@ def resume_env(plot=False,
                     'coarse_size': 0.1,
                     'coarse_distance': 0.5,
                     'box_size': 0.05,
-                    #central point of control_width (used in the jet_bcs function)
                     'control_terms': ['Qs', 'frequencies'],
+                    'tuning_parameters' : [6, 1, 0],
                     'clscale': 0.25,
                     'template': '../backward_facing_step.template_geo',
                     'remesh': remesh}
@@ -98,7 +98,7 @@ def resume_env(plot=False,
                         "min_value_jet_MFR": -1.e0,
                         "max_value_jet_MFR": 1.e0,
                         "smooth_control": (actuations_number/dt)*(0.1*0.0005/80), # 80/0.0005*...=0.1
-                        "zero_net_Qs": True,
+                        "zero_net_Qs": False,
                         "random_start": random_start}
 
     inspection_params = {"plot": plot,
@@ -131,7 +131,7 @@ def resume_env(plot=False,
     #Processing the name of the simulation
 
     simu_name = 'Simu'
-
+    # 0.01 and 80 are considered the default values  
     if optimization_params["max_value_jet_MFR"] != 0.01:
         next_param = 'maxF' + str(optimization_params["max_value_jet_MFR"]) # [2:]
         simu_name = '_'.join([simu_name, next_param])
