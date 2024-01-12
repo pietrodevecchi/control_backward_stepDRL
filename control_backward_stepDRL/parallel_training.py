@@ -71,7 +71,6 @@ agent = Agent.create(
 runner = ParallelRunner(
     agent=agent, environments=environments, evaluation_environment=evaluation_environment
 )
-#inizializzando runner dentro agent, quando runno ce l'ho ...
 
 cwd = os.getcwd()
 evaluation_folder = "env_" + str(number_servers - 1)
@@ -79,7 +78,7 @@ sys.path.append(cwd + evaluation_folder)
 # out_drag_file = open("avg_drag.txt", "w")
 
 runner.run(
-    num_episodes=180, max_episode_timesteps=actuations_number, sync_episodes=True,
+    num_episodes=400, max_episode_timesteps=actuations_number, sync_episodes=True,
     save_best_agent=use_best_model
 )
 # out_drag_file.close()

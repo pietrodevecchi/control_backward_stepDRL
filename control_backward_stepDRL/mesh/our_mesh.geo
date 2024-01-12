@@ -4,24 +4,31 @@ DefineConstant
    step_height = {0.1, Name "step height"}
    step_dist = {1.0, Name "step distance"}
    top_len = {3.0, Name "top length"}
-   control_width = {0.02, Name "control width"}
-   refined_size = {0.01, Name "size for step"}
-   coarse_size= {0.02, Name "size coarse"}
+   control_width = {0.05, Name "control width"}
+   inflow_size = {0.02, Name "size for inflow"}
+   control_size= {0.004, Name "size control"}
+   step_size = {0.016, Name "size past step"}
+   outflow_size = {0.03, Name "size for outflow"}
+   reattach_size = {0.016, Name "size for tracking area"}
+   length_reattach_ref = {0.5, Name "distance from step and area I need more refined"}
+ 
  ];
  
  length_bef_control = step_dist - control_width;
  outflow_width = step_height + inf_width;
  bott_len = top_len - step_dist;
+ reatt_point = step_dist + length_reattach_ref;
  
  p = newp;
  
- Point(p+1) = {0, step_height, 0, coarse_size};
- Point(p+2) = {length_bef_control, step_height, 0, refined_size};
- Point(p+3) = {step_dist, step_height, 0, refined_size};
- Point(p+4) = {step_dist, 0, 0, refined_size};
- Point(p+5) = {top_len, 0, 0, coarse_size};
- Point(p+6) = {top_len, outflow_width, 0, coarse_size};
- Point(p+7) = {0, outflow_width, 0, coarse_size};
+ Point(p+1) = {0, step_height, 0, inflow_size};
+ Point(p+2) = {length_bef_control, step_height, 0, control_size};
+ Point(p+3) = {step_dist, step_height, 0, control_size};
+ Point(p+4) = {step_dist, 0, 0, step_size};
+ Point(p+5) = {reatt_point, 0, 0, reattach_size};
+ Point(p+6) = {top_len, 0, 0, outflow_size};
+ Point(p+7) = {top_len, outflow_width, 0, outflow_size};
+ Point(p+8) = {0, outflow_width, 0, inflow_size};
  
  l = newl;
  
@@ -31,30 +38,31 @@ DefineConstant
  Line(l+4) = {p+4, p+5};
  Line(l+5) = {p+5, p+6};
  Line(l+6) = {p+6, p+7};
- Line(l+7) = {p+7, p+1};
+ Line(l+7) = {p+7, p+8};
+ Line(l+8) = {p+8, p+1};
  
  // Outflow
  out = 2;
- Physical Line(out) = {l+5};
+ Physical Line(out) = {l+6};
  
  // No slip wall
  noslip1=3;
  noslip2=4;
  noslip3=5;
  Physical Line(noslip1) = {l+1};
- Physical Line(noslip2) = {l+3, l+4};
- Physical Line(noslip3) = {l+6};
+ Physical Line(noslip2) = {l+3, l+4, l+5};
+ Physical Line(noslip3) = {l+7};
  
  // Inlet
  in=1;
- Physical Line(in) = {l+7};
+ Physical Line(in) = {l+8};
  
  // control line
  control=6;
  Physical Line(control) = {l+2};
  
  bd = newll; 
- Curve Loop(bd) = {(l+1), (l+2), (l+3), (l+4), (l+5), (l+6), (l+7)}; 
+ Curve Loop(bd) = {(l+1), (l+2), (l+3), (l+4), (l+5), (l+6), (l+7), (l+8)}; 
  
  s = news;
  
