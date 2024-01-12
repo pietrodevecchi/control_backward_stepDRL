@@ -72,7 +72,8 @@ class EnvBackward_step(Environment):
 
     def __init__(self, path_root, geometry_params, flow_params, solver_params, output_params,
                  optimization_params, inspection_params, n_iter_make_ready=None, verbose=0, size_history=2000,
-                 reward_function='plain_drag', size_time_state=50, number_steps_execution=1, simu_name="Simu"):
+                 reward_function='plain_drag', size_time_state=50, number_steps_execution=1, simu_name="Simu", 
+                 ):
         
         # initialize parameters passed from env.py
 
@@ -257,7 +258,11 @@ class EnvBackward_step(Environment):
         # ------------------------------------------------------------------------
         
         # No flux from jets for starting
-        [self.Qs, self.frequencies] = np.zeros(len(self.geometry_params['control_terms']))
+        if self.geometry_params['set_freq']:
+            self.Qs= np.zeros(1)
+            self.frequencies= np.zeros(1)
+        else:
+            [self.Qs, self.frequencies] = np.zeros(len(self.geometry_params['control_terms']))
     
         self.action = np.zeros(len(self.geometry_params['control_terms']))
 
@@ -274,7 +279,10 @@ class EnvBackward_step(Environment):
         if self.n_iter_make_ready is not None:
 
             # initialize solution
-            self.u_, self.p_ = self.flow.evolve([self.Qs, self.frequencies])     
+            if self.geometry_params['set_freq']:
+                self.u_, self.p_ = self.flow.evolve(np.concatenate((self.Qs, self.frequencies)))
+            else:
+                self.u_, self.p_ = self.flow.evolve([self.Qs, self.frequencies])     
             path=''
 
             # dump set the number of steps after which we save one
@@ -289,8 +297,10 @@ class EnvBackward_step(Environment):
             
             # simulation with n_iter_make_readsy steps and no control
             for _ in range(self.n_iter_make_ready):
-                self.u_, self.p_ = self.flow.evolve([self.Qs, self.frequencies]) 
-
+                if self.geometry_params['set_freq']:
+                    self.u_, self.p_ = self.flow.evolve(np.concatenate((self.Qs, self.frequencies)))
+                else:
+                    self.u_, self.p_ = self.flow.evolve([self.Qs, self.frequencies])
                 # compute probe values (state)
                 self.probes_values = self.ann_probes.sample(self.u_, self.p_).flatten()
                 
@@ -332,7 +342,10 @@ class EnvBackward_step(Environment):
         if self.n_iter_make_ready is None:
 
             # iteration to initialize solution variables
-            self.u_, self.p_ = self.flow.evolve([self.Qs, self.frequencies])
+            if self.geometry_params['set_freq']:
+                self.u_, self.p_ = self.flow.evolve(np.concatenate((self.Qs, self.frequencies)))
+            else:
+                self.u_, self.p_ = self.flow.evolve([self.Qs, self.frequencies])
             path=''
         
             # as before file to store data every dump time steps
@@ -402,8 +415,8 @@ class EnvBackward_step(Environment):
 
         # get the positions
         for crrt_probe in self.output_params['locations']:    
-            if self.verbose > 2:
-                print(crrt_probe)
+            # if self.verbose > 2:
+            #     print(crrt_probe)
 
             self.list_positions_probes_x.append(crrt_probe[0])
             self.list_positions_probes_y.append(crrt_probe[1])    
@@ -566,14 +579,14 @@ class EnvBackward_step(Environment):
         if(not os.path.exists("saved_models/"+name)):
             with open("saved_models/"+name, "w") as csv_file:
                 spam_writer=csv.writer(csv_file, delimiter=";", lineterminator="\n")
-                spam_writer.writerow(["Name", "Step", "RecircArea"] + ["Jet" + str(v) for v in range(len(self.Qs))])
+                spam_writer.writerow(["Name", "Step", "RecircArea"] + ["Jet" + str(v) for v in range(len([self.Qs,self.frequencies]))])
                 spam_writer.writerow([self.simu_name, self.solver_step,
-                                      self.history_parameters["recirc_area"].get()[-1]] + [str(v) for v in self.Qs.tolist()])
+                                      self.history_parameters["recirc_area"].get()[-1]] + [str(v) for v in [self.Qs,self.frequencies]])
         else:
             with open("saved_models/"+name, "a") as csv_file:
                 spam_writer=csv.writer(csv_file, delimiter=";", lineterminator="\n")
                 spam_writer.writerow([self.simu_name, self.solver_step,
-                                      self.history_parameters["recirc_area"].get()[-1]] + [str(v) for v in self.Qs.tolist()])
+                                      self.history_parameters["recirc_area"].get()[-1]] + [str(v) for v in [self.Qs,self.frequencies]])
         return
     
 #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------    
@@ -584,10 +597,11 @@ class EnvBackward_step(Environment):
 
             if self.solver_step % modulo_base == 0:
                 if self.verbose > 0:
-                    print(self.solver_step)
-                    print(self.Qs)
-                   # print(self.probes_values)
-                    print(self.recirc_area)
+                    print("Solver step: {}".format(self.solver_step))
+                    print("Amplitude: {}".format(self.Qs))
+                    print("Frequency: {}".format(self.frequencies))
+                    # print(self.probes_values)
+                    print("Recirc area: {}".format(self.recirc_area))
                     pass
 
         if "dump" in self.inspection_params and self.inspection_params["dump"] < 10000:
@@ -631,7 +645,7 @@ class EnvBackward_step(Environment):
                                 lastrow = row
                             best_iter = lastrow[1]
 
-                        if float(best_iter) < float(last_iter):
+                        if float(best_iter) > float(last_iter):
                             print("best_model updated")
                             if(os.path.exists("best_model")):
                                 shutil.rmtree("best_model")
@@ -667,8 +681,8 @@ class EnvBackward_step(Environment):
         self.start_class()
 
         next_state = np.transpose(np.array(self.probes_values))
-        if self.verbose > 0:
-            print(next_state)
+        # if self.verbose > 0:
+        #     print(next_state)
 
         self.episode_number += 1
 
@@ -687,8 +701,9 @@ class EnvBackward_step(Environment):
         if action is None:
             if self.verbose > -1:
                 print("carefull, no action given; by default, no jet!")
-
+            
             nbr_contr = len(self.geometry_params["control_terms"])
+
             action = np.zeros((nbr_contr, ))
 
         if self.verbose > 2:
@@ -704,9 +719,19 @@ class EnvBackward_step(Environment):
             if "smooth_control" in self.optimization_params:
                 # self.Qs += self.optimization_params["smooth_control"] * (np.array(action) - self.Qs)  
                 # a linear change in the control
-                [self.Qs, self.frequencies] = np.array(self.previous_action) + (np.array(self.action) - np.array(self.previous_action)) / self.number_steps_execution * (crrt_action_nbr + 1)  
+                if self.geometry_params['set_freq']:
+                    self.Qs = np.array(self.previous_action) + (np.array(self.action) - np.array(self.previous_action)) / self.number_steps_execution * (crrt_action_nbr + 1)  
+                    self.frequencies = pi/8*np.ones(1)
+                else:
+                    [self.Qs, self.frequencies] = np.array(self.previous_action) + (np.array(self.action) - np.array(self.previous_action)) / self.number_steps_execution * (crrt_action_nbr + 1)  
+                
+
             else:
-                [self.Qs, self.frequencies] = np.transpose(np.array(action))
+                if self.geometry_params['set_freq']:
+                    self.Qs =  np.transpose(np.array(action))
+                    self.frequencies = pi/8*np.ones(1)
+                else:
+                    [self.Qs, self.frequencies] = np.transpose(np.array(action))
 
             # impose a zero net Qs
             if "zero_net_Qs" in self.optimization_params:
@@ -715,7 +740,11 @@ class EnvBackward_step(Environment):
                     self.frequencies = self.frequencies - np.mean(self.frequencies)
 
             # evolve one numerical timestep forward
-            self.u_, self.p_ = self.flow.evolve([self.Qs, self.frequencies])
+            
+            if self.geometry_params['set_freq']:
+                self.u_, self.p_ = self.flow.evolve(np.concatenate((self.Qs, self.frequencies)))
+            else:
+                self.u_, self.p_ = self.flow.evolve([self.Qs, self.frequencies])
 
             # displaying information that has to do with the solver itself
             self.visual_inspection()
@@ -736,8 +765,8 @@ class EnvBackward_step(Environment):
        
         next_state = np.transpose(np.array(self.probes_values))
 
-        #if self.verbose > 2:
-            #print(next_state)
+        if self.verbose > 2:
+            print(next_state)
 
         terminal = False
 
@@ -759,9 +788,9 @@ class EnvBackward_step(Environment):
     def compute_reward(self):
         
         if(self.reward_function == 'recirculation_area'):
-            return + self.area_probe.sample(self.u_, self.p_)       # CAPIRE
+            return -self.area_probe.sample(self.u_, self.p_)
         elif(self.reward_function == 'max_recirculation_area'):
-            return self.area_probe.sample(self.u_, self.p_)
+            return -self.area_probe.sample(self.u_, self.p_)
         else:
             raise RuntimeError("reward function {} not yet implemented".format(self.reward_function))
 

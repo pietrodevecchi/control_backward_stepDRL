@@ -146,10 +146,13 @@ class FlowSolver(object):
         # Parameters needed to initialize JetBCValue object         
         length_before_control = geometry_params['length_before_control']
         control_width = geometry_params['control_width']  
-        step_height = geometry_params['step_height']   
+        step_height = geometry_params['step_height']
+        jet_amplitude_tuning = geometry_params['tuning_parameters'] [0]
+        frequency_amplitude_tuning = geometry_params['tuning_parameters'][1]
+        frequency_shift_tuning = geometry_params['tuning_parameters'][2]
 
         jet_tag = control_tag                                                                                  
-        jet = JetBCValue(gtime, length_before_control, step_height, control_width, frequency=0, Q=0, degree=1) 
+        jet = JetBCValue(gtime, length_before_control, step_height, control_width,  jet_amplitude_tuning, frequency_amplitude_tuning, frequency_shift_tuning, frequency=0, Q=0, degree=1)
 
         # Boundary condition for jet, here set as no-slip
         bcu_jet = DirichletBC(V, jet, surfaces, jet_tag)
@@ -253,7 +256,7 @@ class FlowSolver(object):
         if hasattr(inflow, 'time'):
             inflow.time = self.gtime
 
-        # solvers from the objext
+        # solvers from the object
         assemblers, solvers = self.assemblers, self.solvers
         bs = self.bs
         u_, p_ = self.u_, self.p_

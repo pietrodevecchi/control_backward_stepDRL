@@ -16,11 +16,11 @@ import os
 cwd = os.getcwd()
 
 #number of actuations for each episode
-actuations_number = 50
+actuations_number = 80
 
 def resume_env(plot=False,
-               step=50,
-               dump=100,
+               step=500,
+               dump=500,
                remesh=False,
                random_start=False,
                single_run=False):
@@ -41,17 +41,22 @@ def resume_env(plot=False,
                     'total_length': 3,
                     'frequency': 1,
                     'total_height' : 0.3,
-                    'length_before_control' : 0.98,
-                    'control_width' : 0.02,
+                    'length_before_control' : 0.95,
+                    'control_width' : 0.05,
                     'step_height' : 0.1,
                     'coarse_size': 0.1,
                     'coarse_distance': 0.5,
                     'box_size': 0.05,
+                    #central point of control_width (used in the jet_bcs function)
+                    'set_freq': 1,
                     'control_terms': ['Qs', 'frequencies'],
-                    'tuning_parameters' : [6, 1, 0],
-                    'clscale': 0.25,
+                    'tuning_parameters' : [8,1,0],
+                    'clscale': 1,
                     'template': '../backward_facing_step.template_geo',
                     'remesh': remesh}
+
+    if geometry_params['set_freq']:
+        geometry_params['control_terms'] = ['Qs']
 
     def profile(mesh, degree):
         bot = mesh.coordinates().min(axis=0)[1]+0.1
@@ -70,12 +75,12 @@ def resume_env(plot=False,
                   'inflow_profile': profile}
 
     solver_params = {'dt': dt,
-                    'solver_type': 'lu', # choose among lu and la_solve
-                    'preconditioner_step_1': 'hipre_amg',
-                    'preconditioner_step_2': 'hipre_amg',
-                    'preconditioner_step_3': 'hipre_amg',
-                    'la_solver_step_1': 'cg',
-                    'la_solver_step_2': 'cg',
+                    'solver_type': 'lu', # choose between lu(direct) and la_solve(iterative)
+                    'preconditioner_step_1': 'default',
+                    'preconditioner_step_2': 'amg',
+                    'preconditioner_step_3': 'jacobi',
+                    'la_solver_step_1': 'gmres',
+                    'la_solver_step_2': 'gmres',
                     'la_solver_step_3': 'cg'}
 
     #initialization of the list containing the coordinates of the probes
@@ -113,15 +118,15 @@ def resume_env(plot=False,
 
     verbose = 3
 
-    number_steps_execution = int((simulation_duration/dt)/actuations_number)
+    number_steps_execution = int((simulation_duration/dt)/actuations_number) #2
 
     # Start with the initialization
 
     #Possibility of varying the value of n_iter (i.e. iterations for the baseline simulation)
     # according to the fact that there will be a remesh.
     if(remesh):
-        # n_iter = int(10.0 / dt)
-        n_iter = int(5.0 / dt)
+        n_iter = int(10.0 / dt)
+        # n_iter = int(5.0 / dt)
         # n_iter = int(1.0 / dt)
         print("Make converge initial state for {} iterations".format(n_iter))
     else:
@@ -131,7 +136,7 @@ def resume_env(plot=False,
     #Processing the name of the simulation
 
     simu_name = 'Simu'
-    # 0.01 and 80 are considered the default values  
+
     if optimization_params["max_value_jet_MFR"] != 0.01:
         next_param = 'maxF' + str(optimization_params["max_value_jet_MFR"]) # [2:]
         simu_name = '_'.join([simu_name, next_param])
