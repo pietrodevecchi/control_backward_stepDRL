@@ -1,4 +1,4 @@
-File Explanations :
+Files Explanation :
 
 control_bcs.py: 
 
@@ -62,7 +62,7 @@ In this script there is the initialization of the probes for booth the velocity 
 Moreover in this script it is also developed the TotalRecirculationArea class, whose objects provide the calculus of the global area of cells having (in their dofs) at least one values of the computed horizontal velocity below a given threshold (for us 0, so horizontal velocity opposite w.r.t the flow direction). This function is the one used as reward function for the learning. 
 
 
-set_env.py :
+simulation_base/set_env.py :
 
 In this script it's initialized the example environment called in the script lauch_parallel_training.py through the function resume_env.
 The fundamental parameters for the simulations are all initialized here: both the geometrical ones but also the ones necessary for the training as the maximum and the minimum value for forcing jet and for the frequency, the timestep for each solver object iteration and the choice of reward function.
