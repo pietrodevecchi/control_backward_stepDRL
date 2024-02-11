@@ -16,7 +16,7 @@ import os
 cwd = os.getcwd()
 
 #number of actuations for each episode
-actuations_number = 80
+actuations_number = 50
 
 def resume_env(plot=False,
                step=500,
@@ -50,7 +50,7 @@ def resume_env(plot=False,
                     #central point of control_width (used in the jet_bcs function)
                     'set_freq': 1,
                     'control_terms': ['Qs', 'frequencies'],
-                    'tuning_parameters' : [8,1,0],
+                    'tuning_parameters' : [4.0,1.0,0.0],
                     'clscale': 1,
                     'template': '../backward_facing_step.template_geo',
                     'remesh': remesh}
@@ -90,6 +90,8 @@ def resume_env(plot=False,
     # It would be likely a good possible improvement to place some probes also in the upper area
     positions_probes_for_grid_x = np.linspace(1,2,27)[1:-1]
     positions_probes_for_grid_y = np.linspace(0,0.1,6)[1:-1]
+
+
 
     for crrt_x in positions_probes_for_grid_x:
         for crrt_y in positions_probes_for_grid_y:
