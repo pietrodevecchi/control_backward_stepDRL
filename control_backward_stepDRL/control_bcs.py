@@ -43,9 +43,9 @@ class JetBCValue(UserExpression):
         
         x_max = x_min + self.control_width
 
-        # evaluation of the profile at point x
-        values[0] = self.a1*self.Q*(x[0]-x_min)*(x_max-x[0])/self.control_width**2 * abs(sin(self.a2*(self.freq+self.b)*2*pi*self.time))
-        values[1] = self.a1*self.Q*(x[0]-x_min)*(x_max-x[0])/self.control_width**2 * abs(sin(self.a2*(self.freq+self.b)*2*pi*self.time))
+    # evaluation of the profile at point x                                           
+        values[0] = self.a1*self.Q*(x[0]-x_min)*(x_max-x[0])/self.control_width**2 * abs(sin((self.a2*self.freq+self.a2/2.0)*2*pi*self.time))
+        values[1] = self.a1*self.Q*(x[0]-x_min)*(x_max-x[0])/self.control_width**2 * abs(sin((self.a2*self.freq+self.a2/2.0)*2*pi*self.time))
 
     def value_shape(self):
         return (2, )
