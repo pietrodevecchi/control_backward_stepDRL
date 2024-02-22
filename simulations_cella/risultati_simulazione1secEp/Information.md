@@ -1,0 +1,7 @@
+-200 Episodes
+-50 actuations
+-1 secondi per simulation Duration (Difference w.r.t STANDARD)
+-1e-3 Reynolds
+-2 server
+-[4,1,0] 
+- extimated time : 3 h 51 min (69 sec/episode)
