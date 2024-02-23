@@ -1,0 +1,6 @@
+model_checkpoint_path: "/home/fenics/local/control_backward_stepDRL/control_on_width_size/saver_data/model-10000"
+all_model_checkpoint_paths: "/home/fenics/local/control_backward_stepDRL/control_on_width_size/saver_data/model-9350"
+all_model_checkpoint_paths: "/home/fenics/local/control_backward_stepDRL/control_on_width_size/saver_data/model-9554"
+all_model_checkpoint_paths: "/home/fenics/local/control_backward_stepDRL/control_on_width_size/saver_data/model-9761"
+all_model_checkpoint_paths: "/home/fenics/local/control_backward_stepDRL/control_on_width_size/saver_data/model-9966"
+all_model_checkpoint_paths: "/home/fenics/local/control_backward_stepDRL/control_on_width_size/saver_data/model-10000"

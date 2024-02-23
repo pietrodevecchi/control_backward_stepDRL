@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE Xdmf SYSTEM "Xdmf.dtd" []>
+<Xdmf Version="3.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <Domain>
+    <Grid Name="TimeSeries_pressure" GridType="Collection" CollectionType="Temporal">
+      <Grid Name="mesh" GridType="Uniform">
+        <Topology NumberOfElements="106171" TopologyType="Triangle" NodesPerElement="3">
+          <DataItem Dimensions="106171 3" NumberType="UInt" Format="HDF">p_lu.h5:/Mesh/0/mesh/topology</DataItem>
+        </Topology>
+        <Geometry GeometryType="XY">
+          <DataItem Dimensions="53874 2" Format="HDF">p_lu.h5:/Mesh/0/mesh/geometry</DataItem>
+        </Geometry>
+        <Time Value="0.099500000000000005" />
+        <Attribute Name="pressure" AttributeType="Scalar" Center="Node">
+          <DataItem Dimensions="53874 1" Format="HDF">p_lu.h5:/VisualisationVector/0</DataItem>
+        </Attribute>
+      </Grid>
+    </Grid>
+  </Domain>
+</Xdmf>
