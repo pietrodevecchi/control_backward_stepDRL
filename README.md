@@ -8,6 +8,36 @@ This is the core of the project, it contains all the .py files that are called w
 
 Here some insights are provided about meshes, past results and other utilities.
 
+# Download 
+
+We suggest to download the docker image components from the directory `Docker`, rigorously in the same destination folder.
+
+At this point the image can be reconstructed through the command:
+
+  ```bash
+  pc@user cat bstep_control_image.tar_part.?? > bstep_control_image.tar
+  ```
+
+The image can be loaded into the Docker environment using:
+
+  ```bash
+  pc@user docker load < bstep_control_image.tar
+
+  ```
+
+Make sure the image you intend to use is available on your system:
+
+  ```bash
+  pc@user docker images
+  ```
+
+Now create and start a new container from your image:
+
+  ```bash
+  pc@user docker run -ti --name NAME_OF_THE_CONTAINER bstep_control_image:latest /bin/bash -l
+  ```
+
+The library is now ready to use, with the main directory at `/home/fenics/local/Bstep_DRLcontrol`.
 
 # Instructions to run:
 
@@ -44,3 +74,5 @@ This command generates and converts the mesh from the .geo file and performs a l
 -The latest episode and the final reward from each episode can be viewed within in `results/` and `saved_models/` folders.
 
 -Additionally, a checkpoint is generated in `saver_data/`, which is useful for pausing and resuming the learning process. Note that this checkpoint must be deleted if you wish to conduct a completely new optimization.
+
+
