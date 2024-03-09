@@ -4,6 +4,10 @@ import argparse
 import socket
 import os
 from utils import check_ports_avail
+import warnings
+
+# Ignore all warnings
+warnings.filterwarnings("ignore")
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-n", "--number-servers", required=True, help="number of servers to spawn", type=int)

@@ -11,6 +11,11 @@ from tensorforce.execution import ParallelRunner
 from simulation_base.set_env import resume_env, actuations_number
 from RemoteEnvironmentClient import RemoteEnvironmentClient
 
+import warnings
+
+# Ignore all warnings
+warnings.filterwarnings("ignore")
+
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-n", "--number-servers", required=True, help="number of servers to spawn", type=int)

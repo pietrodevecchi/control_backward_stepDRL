@@ -13,6 +13,12 @@ from dolfin import Expression
 import math
 
 import os
+
+import warnings
+
+# Ignore all warnings
+warnings.filterwarnings("ignore")
+
 cwd = os.getcwd()
 
 #number of actuations for each episode
@@ -122,7 +128,7 @@ def resume_env(plot=False,
 
     reward_function = 'recirculation_area'
 
-    verbose = 3
+    verbose = 1
 
     number_steps_execution = int((simulation_duration/dt)/actuations_number) #2
 

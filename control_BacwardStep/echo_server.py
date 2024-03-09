@@ -1,6 +1,10 @@
 from __future__ import print_function
 import pickle
 
+import warnings
+
+# Ignore all warnings
+warnings.filterwarnings("ignore")
 
 class EchoServer(object):
     '''Implement a simple echo server for sending data and instruction through a socket.

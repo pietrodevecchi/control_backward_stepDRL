@@ -1,2 +1,2 @@
-model_checkpoint_path: "/home/fenics/local/control_backward_stepDRL/control_on_width_size2/saver_data/model-20100"
-all_model_checkpoint_paths: "/home/fenics/local/control_backward_stepDRL/control_on_width_size2/saver_data/model-20100"
+model_checkpoint_path: "/home/fenics/local/Bstep_DRLcontrol/control_BacwardStep/saver_data/model-20100"
+all_model_checkpoint_paths: "/home/fenics/local/Bstep_DRLcontrol/control_BacwardStep/saver_data/model-20100"

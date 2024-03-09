@@ -1,4 +1,8 @@
 import socket
+import warnings
+
+# Ignore all warnings
+warnings.filterwarnings("ignore")
 
 
 def check_free_port(host, port, verbose=True):
