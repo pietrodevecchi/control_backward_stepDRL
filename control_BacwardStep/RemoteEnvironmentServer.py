@@ -2,6 +2,11 @@ from echo_server import EchoServer
 import socket
 import pickle
 
+import warnings
+
+# Ignore all warnings
+warnings.filterwarnings("ignore")
+
 
 class RemoteEnvironmentServer(EchoServer):
 

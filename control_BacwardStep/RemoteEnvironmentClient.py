@@ -5,6 +5,10 @@ import socket
 from echo_server import EchoServer
 import time
 
+import warnings
+
+# Ignore all warnings
+warnings.filterwarnings("ignore")
 
 class RemoteEnvironmentClient(Environment):
     """Used to communicate with a RemoteEnvironmentServer. The idea is that the pair

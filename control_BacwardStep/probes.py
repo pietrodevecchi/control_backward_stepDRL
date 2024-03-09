@@ -1,6 +1,10 @@
 import numpy as np
 from mpi4py import MPI as py_mpi
 from dolfin import *
+import warnings
+
+# Ignore all warnings
+warnings.filterwarnings("ignore")
 
 # try:
 #     from iufl import icompile

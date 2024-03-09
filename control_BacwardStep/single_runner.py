@@ -8,6 +8,18 @@ from tensorforce.execution import ParallelRunner
 
 from simulation_base.set_env import resume_env, actuations_number
 
+import warnings
+# Ignore all warnings
+warnings.filterwarnings("ignore")
+
+import tensorflow as tf
+import logging
+import os
+
+# Set TensorFlow to only display errors and above
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+tf.get_logger().setLevel(logging.ERROR)
+
 example_environment = resume_env(plot=False, dump=100, single_run=True)
 
 deterministic = True

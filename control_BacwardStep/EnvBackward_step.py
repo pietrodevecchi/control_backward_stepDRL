@@ -23,6 +23,11 @@ import math
 import csv
 import shutil
 
+import warnings
+
+# Ignore all warnings
+warnings.filterwarnings("ignore")
+
 # function to define inflow profile look into flow solver to find more comments
 def constant_profile(mesh, degree): 
     '''
@@ -264,19 +269,13 @@ class EnvBackward_step(Environment):
         # ------------------------------------------------------------------------
         
         # No flux from jets for starting
-        if self.geometry_params['set_freq']:
+        if (self.geometry_params['set_freq'] or self.geometry_params['set_control']):
             self.Qs= np.zeros(1)
             self.frequencies= np.zeros(1)
             self.control_evolution=np.zeros(1)
         else:
             [self.Qs, self.frequencies,self.control_evolution] = np.zeros(len(self.geometry_params['control_terms']))
     
-        if self.geometry_params['set_control']:
-            self.Qs= np.zeros(1)
-            self.frequencies= np.zeros(1)
-            self.control_evolution=np.zeros(1)
-        else:
-            [self.Qs, self.frequencies,self.control_evolution] = np.zeros(len(self.geometry_params['control_terms']))
 
         self.action = np.zeros(len(self.geometry_params['control_terms']))
 
@@ -293,14 +292,12 @@ class EnvBackward_step(Environment):
         if self.n_iter_make_ready is not None:
 
             # initialize solution
-            if self.geometry_params['set_freq']:
+            if (self.geometry_params['set_control']):
+                self.u_, self.p_ = self.flow.evolve(np.concatenate((self.Qs, self.frequencies,self.control_evolution)))
+            elif (self.geometry_params['set_freq']):
                 self.u_, self.p_ = self.flow.evolve(np.concatenate((self.Qs, self.frequencies,self.control_evolution)))
             else:
                 self.u_, self.p_ = self.flow.evolve([self.Qs, self.frequencies,self.control_evolution])  
-            if self.geometry_params['set_control']:
-                self.u_, self.p_ = self.flow.evolve(np.concatenate((self.Qs, self.frequencies,self.control_evolution)))
-            else:
-                self.u_, self.p_ = self.flow.evolve([self.Qs, self.frequencies,self.control_evolution])        
             path=''
 
             # dump set the number of steps after which we save one
@@ -315,14 +312,12 @@ class EnvBackward_step(Environment):
             
             # simulation with n_iter_make_readsy steps and no control
             for _ in range(self.n_iter_make_ready):
-                if self.geometry_params['set_freq']:
-                    self.u_, self.p_ = self.flow.evolve(np.concatenate((self.Qs, self.frequencies,self.control_evolution)))
+                if (self.geometry_params['set_control']):
+                    self.u_, self.p_ = self.flow.evolve(np.concatenate((self.Qs, self.frequencies, self.control_evolution)))
+                elif (self.geometry_params['set_freq']):
+                    self.u_, self.p_ = self.flow.evolve(np.concatenate((self.Qs, self.frequencies, self.control_evolution)))
                 else:
                     self.u_, self.p_ = self.flow.evolve([self.Qs, self.frequencies,self.control_evolution])
-                if self.geometry_params['set_control']:
-                    self.u_, self.p_ = self.flow.evolve(np.concatenate((self.Qs, self.frequencies,self.control_evolution)))
-                else:
-                    self.u_, self.p_ = self.flow.evolve([self.Qs, self.frequencies,self.control_evolution])    
                 # compute probe values (state)
                 self.probes_values = self.ann_probes.sample(self.u_, self.p_).flatten()
                 
@@ -364,11 +359,9 @@ class EnvBackward_step(Environment):
         if self.n_iter_make_ready is None:
 
             # iteration to initialize solution variables
-            if self.geometry_params['set_freq']:
-                self.u_, self.p_ = self.flow.evolve(np.concatenate((self.Qs, self.frequencies,self.control_evolution)))
-            else:
-                self.u_, self.p_ = self.flow.evolve([self.Qs, self.frequencies,self.control_evolution])
             if self.geometry_params['set_control']:
+                self.u_, self.p_ = self.flow.evolve(np.concatenate((self.Qs, self.frequencies,self.control_evolution)))
+            elif self.geometry_params['set_freq']:
                 self.u_, self.p_ = self.flow.evolve(np.concatenate((self.Qs, self.frequencies,self.control_evolution)))
             else:
                 self.u_, self.p_ = self.flow.evolve([self.Qs, self.frequencies,self.control_evolution])    
@@ -625,7 +618,7 @@ class EnvBackward_step(Environment):
                 if self.verbose > 0:
                     print("Solver step: {}".format(self.solver_step))
                     print("Amplitude_value: {}".format(self.a1*self.Qs))
-                    print("Frequency: {}".format(self.a2*self.frequencies))
+                    print("Frequency: {}".format(self.a2*self.frequencies+self.a2/2.0))
                     print("Control_evolution: {}".format(self.control_width + self.b*self.control_evolution))
                     # print(self.probes_values)
                     print("Recirc area: {}".format(self.recirc_area))
@@ -708,7 +701,7 @@ class EnvBackward_step(Environment):
         self.start_class()
 
         next_state = np.transpose(np.array(self.probes_values))
-        # if self.verbose > 0:
+        # if self.verbose > 0:self.u_, self.p_ = self.flow.evolve(np.concatenate((self.Qs, self.frequencies,self.control_evolution)))
         #     print(next_state)
 
         self.episode_number += 1
@@ -771,14 +764,14 @@ class EnvBackward_step(Environment):
                 if self.optimization_params["zero_net_Qs"]:
                     self.Qs = self.Qs - np.mean(self.Qs)
                     self.frequencies = self.frequencies - np.mean(self.frequencies)
-                    self.control_evolution = self.control_evolution -np.mean(self.control_evolution)
+                    self.control_evolution = self.control_evolution - np.mean(self.control_evolution)
 
             # evolve one numerical timestep forward
             
-            if self.geometry_params['set_freq']:
-                self.u_, self.p_ = self.flow.evolve(np.concatenate((self.Qs, self.frequencies,self.control_evolution)))
-            elif self.geometry_params['set_control']:
-                self.u_, self.p_ = self.flow.evolve(np.concatenate((self.Qs, self.frequencies,self.control_evolution)))
+            if (self.geometry_params['set_control']):
+                self.u_, self.p_ = self.flow.evolve(np.concatenate(([self.Qs, self.frequencies],self.control_evolution)))
+            elif (self.geometry_params['set_freq']):
+                self.u_, self.p_ = self.flow.evolve(np.concatenate(([self.Qs], self.frequencies,[self.control_evolution])))
             else:
                 self.u_, self.p_ = self.flow.evolve([self.Qs, self.frequencies,self.control_evolution])
 

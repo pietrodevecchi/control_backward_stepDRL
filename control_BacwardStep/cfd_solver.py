@@ -2,6 +2,10 @@ from control_bcs import JetBCValue
 from dolfin import *
 import numpy as np
 
+import warnings
+
+# Ignore all warnings
+warnings.filterwarnings("ignore")
 
 class FlowSolver(object):
     '''

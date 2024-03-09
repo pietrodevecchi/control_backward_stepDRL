@@ -9,6 +9,10 @@ sys.path.append(cwd + "/../")
 
 from RemoteEnvironmentServer import RemoteEnvironmentServer
 from simulation_base.set_env import resume_env
+import warnings
+
+# Ignore all warnings
+warnings.filterwarnings("ignore")
 
 ap = argparse.ArgumentParser()
 
