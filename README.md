@@ -1,6 +1,6 @@
-Files and Directories explanation :
+# Files and Directories explanation :
 
-control_backward_stepDRL:
+## control_backward_stepDRL:
 
 This is the core of the project, it contains all the .py files that are called when running training_launcher.sh and here all the results will be stored. Another README file is provided to better understand the role of each python script.
 
